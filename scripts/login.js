@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (userDoc.exists && userDoc.data().admin === true) {
                 // Ako korisnik postoji i ima admin prava, preusmjeri ga na index.html
-                window.location.href = 'index.html'; 
+                window.location.href = 'dashboard.html'; 
             } else {
                 throw new Error('Insufficient permissions');
             }

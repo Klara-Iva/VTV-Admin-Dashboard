@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VTV data edit</title>
+    <title>Login</title>
     <link rel="stylesheet" href="styles/style.css">
     <script src="https://www.gstatic.com/firebasejs/9.9.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.2/firebase-firestore-compat.js"></script>
     <script src="scripts/firebase.js" defer></script>
-    <script src="scripts/main.js" defer></script>
+    <script src="scripts/login.js" defer></script>
+    <link rel="stylesheet" href="styles/login.css">
+
 </head>
 <body>
     <div class="container">
-        <h2>Virovitički turistički vodič</h2>
-        <p>Mjesto za uređivanje baze podataka za mobilnu aplikaciju.</p>
-        <div id="places-container" class="card-grid"></div>
+        <h2>Login</h2>
+        <form id="login-form">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+        <p id="error-message" style="color:red; display:none;">Invalid email, password, or insufficient permissions!</p>
     </div>
 </body>
 </html>
