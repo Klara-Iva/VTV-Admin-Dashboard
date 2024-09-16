@@ -1,54 +1,55 @@
 document.addEventListener('DOMContentLoaded', () => {
     const placesContainer = document.getElementById('places-container');
+    const searchInput = document.getElementById('search-input'); // Polje za pretragu
+    let placesList = []; // Čuvanje svih mjesta za filtriranje
 
     const categories = [
         'aktualno', 'duhovnost', 'eksperimenti', 'građevine', 'interaktivno', 
         'spomenici', 'povijest', 'priroda', 'umjetnost', 'sport'
     ];
 
-    const renderPlace = (doc) => {
-        const data = doc.data();
+    const renderPlace = (place) => {
         const card = document.createElement('div');
         card.classList.add('card');
         
         let categoryCheckboxes = categories.map(category => `
             <label>
-                <input type="checkbox" name="category" value="${category}" ${data.category.includes(category) ? 'checked' : ''}>
+                <input type="checkbox" name="category" value="${category}" ${place.category.includes(category) ? 'checked' : ''}>
                 ${category}
             </label>
         `).join('<br>');
 
         card.innerHTML = `
-            <img src="${data.image1}" alt="${data.name}">
-            <img src="${data.image2}" alt="${data.name}">
-            <h3>${data.name}</h3>
-            <form data-id="${doc.id}">
-                <label for="name_${doc.id}">Name:</label>
-                <input type="text" id="name_${doc.id}" name="name" value="${data.name}" required>
+            <img src="${place.image1}" alt="${place.name}">
+            <img src="${place.image2}" alt="${place.name}">
+            <h3>${place.name}</h3>
+            <form data-id="${place.id}">
+                <label for="name_${place.id}">Name:</label>
+                <input type="text" id="name_${place.id}" name="name" value="${place.name}" required>
                 
-                <label for="description_${doc.id}">Description:</label>
-                <textarea id="description_${doc.id}" name="description" required>${data.description}</textarea>
+                <label for="description_${place.id}">Description:</label>
+                <textarea id="description_${place.id}" name="description" required>${place.description}</textarea>
                 
                 <label>Category:</label>
                 <div>${categoryCheckboxes}</div>
                 
-                <label for="latitude_${doc.id}">Latitude:</label>
-                <input type="number" id="latitude_${doc.id}" name="latitude" value="${data.latitude}" required>
+                <label for="latitude_${place.id}">Latitude:</label>
+                <input type="number" id="latitude_${place.id}" name="latitude" value="${place.latitude}" required>
                 
-                <label for="longitude_${doc.id}">Longitude:</label>
-                <input type="number" id="longitude_${doc.id}" name="longitude" value="${data.longitude}" required>
+                <label for="longitude_${place.id}">Longitude:</label>
+                <input type="number" id="longitude_${place.id}" name="longitude" value="${place.longitude}" required>
                 
-                <label for="link_${doc.id}">Link:</label>
-                <input type="url" id="link_${doc.id}" name="link" value="${data.link || ''}">
+                <label for="link_${place.id}">Link:</label>
+                <input type="url" id="link_${place.id}" name="link" value="${place.link || ''}">
                 
-                <label for="image1_${doc.id}">Image 1 URL:</label>
-                <input type="url" id="image1_${doc.id}" name="image1" value="${data.image1}" required>
+                <label for="image1_${place.id}">Image 1 URL:</label>
+                <input type="url" id="image1_${place.id}" name="image1" value="${place.image1}" required>
                 
-                <label for="image2_${doc.id}">Image 2 URL:</label>
-                <input type="url" id="image2_${doc.id}" name="image2" value="${data.image2}" required>
+                <label for="image2_${place.id}">Image 2 URL:</label>
+                <input type="url" id="image2_${place.id}" name="image2" value="${place.image2}" required>
                 
                 <button type="submit">Update</button>
-                <button type="button" onclick="deletePlace('${doc.id}')">Delete</button>
+                <button type="button" onclick="deletePlace('${place.id}')">Delete</button>
             </form>
         `;
         placesContainer.appendChild(card);
@@ -72,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updatedData.link = link;
             }
 
-            await db.collection('places').doc(doc.id).update(updatedData);
+            await db.collection('places').doc(place.id).update(updatedData);
             alert('Place updated successfully!');
         });
     };
@@ -83,7 +84,23 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Place deleted successfully!');
     };
 
+    const renderPlaces = (places) => {
+        placesContainer.innerHTML = '';
+        places.forEach(renderPlace);
+    };
+
+    searchInput.addEventListener('input', (event) => {
+        const searchTerm = event.target.value.toLowerCase();
+        const filteredPlaces = placesList.filter(place => 
+            place.name.toLowerCase().includes(searchTerm) ||
+            place.description.toLowerCase().includes(searchTerm)
+        );
+        renderPlaces(filteredPlaces); 
+    });
+
+
     db.collection('places').get().then((snapshot) => {
-        snapshot.docs.forEach(doc => renderPlace(doc));
+        placesList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
+        renderPlaces(placesList); 
     });
 });
